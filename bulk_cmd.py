@@ -18,8 +18,11 @@ def get_command_list(file_path):
         commands = f.read().splitlines()
         return commands
 
-def write_to_file(path, cdp_output):
+def write_to_file(path, cdp_output, host):
     with open(path, 'w+') as fLog:
+        # Writes the IP of the device at the beginning of the file
+        fLog.write(f"{host}\n")
+        # Write the output of each command
         for item in cdp_output:
             fLog.write(f"{item} \n\n")
 
@@ -69,7 +72,7 @@ def bulk_cmd(log_folder):
                 # Writes the output to device's file
                 logFile = f"{log_folder}\{hostname}.txt" 
                 net_connect.disconnect()
-                write_to_file(logFile, out_list)
+                write_to_file(logFile, out_list, host)
                 break
             
             # Exit script if CTRL + C is pressed
