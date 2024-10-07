@@ -1,1 +1,1 @@
-sh cdp entry *
+show cdp entry *
