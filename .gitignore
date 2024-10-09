@@ -1,5 +1,6 @@
 .env
+hosts.txt
+*.png
 **/logs
 **/CDP
-hosts.txt
 **/__pycache__

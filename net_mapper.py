@@ -44,7 +44,6 @@ def handle_cdp_entries(device_list):
         neighbor_devices = {}
         # Build the path to the cdp entries file of the device
         host, cdp_entries = list_cdp_entries(os.path.join("CDP", f"{device}.txt"))
-        print(f"Going through entries of device {host}")
         # Iterate through each entry
         for cdp_entry in cdp_entries:
             # Get Device ID (Neighbor hostname), remove domain by splitting in a list with . and takes just device name
@@ -82,18 +81,23 @@ def handle_cdp_entries(device_list):
 
     return network_links
 
-def draw_graph(network_links):
+def draw_graph(network_links, image_name = None):
     '''Draws the graph of the network'''
     G = nx.Graph()
 
     # Add nodes (devices) and links with interfaces label
     for link in network_links:
         device1, device2 = link["Devices"]
+        # Get interfaces
         device1_int = link[f"{device1}_int"]
         device2_int = link[f"{device2}_int"]
+        # Adding IP to device names
+        device1 = f"{device1}\n{link[f'{device1}_ip']}"
+        device2 = f"{device2}\n{link[f'{device2}_ip']}"
         
         # Add nodes
-        G.add_nodes_from(link["Devices"])
+        G.add_node(device1)
+        G.add_node(device2)
         
         int_label = ""
         # Add links with interfaces as labels
@@ -101,7 +105,7 @@ def draw_graph(network_links):
             if int_label == "":
                 int_label = f"{device1_int[i]} ↔ {device2_int[i]}"
             else:
-                int_label = f"{int_label}\n{device1_int} ↔ {device2_int}"
+                int_label = f"{int_label}\n{device1_int[i]} ↔ {device2_int[i]}"
         G.add_edge(device1, device2, label=int_label)
 
     # Node positions
@@ -111,7 +115,7 @@ def draw_graph(network_links):
     nx.draw_networkx_nodes(G, pos, node_size=1000, node_color='lightblue')
 
     # Draw node labels (device names)
-    nx.draw_networkx_labels(G, pos, font_size=9)
+    nx.draw_networkx_labels(G, pos, font_size=6)
 
     # Draw links
     nx.draw_networkx_edges(G, pos)
@@ -120,9 +124,22 @@ def draw_graph(network_links):
     edge_labels = nx.get_edge_attributes(G, 'label')
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, label_pos=0.4, font_color='black', font_size=6, alpha=0.4)
 
-    # Draw the graph
+    # Set title and disable axis
     plt.title("Network")
     plt.axis('off')
+
+    # Remove margins
+    plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+    
+    if image_name:
+        # Configure image size
+        figure = plt.gcf()
+        # You can change the dimension of the image and DPI (resolution)
+        figure.set_size_inches(16, 16)
+        # Save the graph
+        plt.savefig(f'{image_name}.png', dpi=250)
+
+    # Show the image
     plt.show()
 
 def main():
@@ -140,8 +157,12 @@ def main():
     with open(r"logs\network_links.txt", "w+") as debug_file:
         debug_file.write(json.dumps(network_links, indent = 2))
     
+    os.system("cls")
+    # Ask user the name of the image
+    image_name = input("(Press Enter if you don't want to save)\nName the file for the drawing: ")
+
     # Draw the network
-    draw_graph(network_links)
+    draw_graph(network_links, image_name)
 
 if __name__ == '__main__':
     main()
