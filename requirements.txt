@@ -1,2 +1,3 @@
 netmiko
-
+networkx
+matplotlib

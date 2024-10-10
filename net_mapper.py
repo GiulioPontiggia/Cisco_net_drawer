@@ -6,6 +6,13 @@ import re
 import networkx as nx
 import matplotlib.pyplot as plt
 
+def empty_cdp_folder():
+    # List files in CDP folder
+    files = os.listdir('CDP')
+    # Remove each file
+    for file in files:
+        os.remove(os.path.join('CDP', file))
+
 def list_cdp_entries(file_path):
     '''Read a file with cdp entries and return a list of all the entries'''
     with open(file_path, 'r') as f:
@@ -143,6 +150,9 @@ def draw_graph(network_links, image_name = None):
     plt.show()
 
 def main():
+
+    # Remove old files from previous execution
+    empty_cdp_folder()
 
     # Send commands in comandi.txt for devices in hosts.txt, output in /CDP/device_name
     bulk_cmd.bulk_cmd("CDP")
