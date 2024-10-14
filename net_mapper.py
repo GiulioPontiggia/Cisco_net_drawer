@@ -108,12 +108,16 @@ def draw_graph(network_links, image_name = None):
         
         int_label = ""
         # Add links with interfaces as labels
+        # for i in range(len(device1_int)):
+        #     if int_label == "":
+        #         int_label = f"{device1_int[i]} ↔ {device2_int[i]}"
+        #     else:
+        #         int_label = f"{int_label}\n{device1_int[i]} ↔ {device2_int[i]}"
+        # G.add_edge(device1, device2, label=int_label)
+
+        ## NEW
         for i in range(len(device1_int)):
-            if int_label == "":
-                int_label = f"{device1_int[i]} ↔ {device2_int[i]}"
-            else:
-                int_label = f"{int_label}\n{device1_int[i]} ↔ {device2_int[i]}"
-        G.add_edge(device1, device2, label=int_label)
+            G.add_edge(device1, device2, int1 = device1_int[i], int2 = device2_int[i])
 
     # Node positions
     pos = nx.spring_layout(G)
@@ -128,11 +132,26 @@ def draw_graph(network_links, image_name = None):
     nx.draw_networkx_edges(G, pos)
 
     # Draw link labels (interface names)
-    edge_labels = nx.get_edge_attributes(G, 'label')
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, label_pos=0.4, font_color='black', font_size=6, alpha=0.4)
+    # edge_labels = nx.get_edge_attributes(G, 'label')
+    # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, label_pos=0.4, font_color='black', font_size=6, alpha=0.4)
+
+    ## NEW
+    for (n1, n2, data) in G.edges(data=True):
+        # N1(x) < N2(x) reverse the edge labels
+        if pos[n1][0] < pos[n2][0]:
+            # Calculate a position slightly to the 1 device
+            label_pos1 = (pos[n1] * 0.3 + pos[n2] * 0.7)
+            label_pos2 = (pos[n1] * 0.7 + pos[n2] * 0.3)
+        # Otherwise leave them in their positions
+        else:
+            label_pos1 = (pos[n1] * 0.7 + pos[n2] * 0.3)
+            label_pos2 = (pos[n1] * 0.3 + pos[n2] * 0.7)
+        plt.text(label_pos1[0], label_pos1[1], data["int1"], color="black", fontsize=6, ha='center', alpha=0.4)
+        plt.text(label_pos2[0], label_pos2[1], data["int2"], color="black", fontsize=6, ha='center', alpha=0.4)
+
 
     # Set title and disable axis
-    plt.title("Network")
+    plt.title("Network" if not image_name else image_name)
     plt.axis('off')
 
     # Remove margins
