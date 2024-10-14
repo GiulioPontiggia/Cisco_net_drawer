@@ -106,16 +106,8 @@ def draw_graph(network_links, image_name = None):
         G.add_node(device1)
         G.add_node(device2)
         
-        int_label = ""
-        # Add links with interfaces as labels
-        # for i in range(len(device1_int)):
-        #     if int_label == "":
-        #         int_label = f"{device1_int[i]} ↔ {device2_int[i]}"
-        #     else:
-        #         int_label = f"{int_label}\n{device1_int[i]} ↔ {device2_int[i]}"
-        # G.add_edge(device1, device2, label=int_label)
 
-        ## NEW
+        # Add edges
         for i in range(len(device1_int)):
             G.add_edge(device1, device2, int1 = device1_int[i], int2 = device2_int[i])
 
@@ -132,10 +124,6 @@ def draw_graph(network_links, image_name = None):
     nx.draw_networkx_edges(G, pos)
 
     # Draw link labels (interface names)
-    # edge_labels = nx.get_edge_attributes(G, 'label')
-    # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, label_pos=0.4, font_color='black', font_size=6, alpha=0.4)
-
-    ## NEW
     for (n1, n2, data) in G.edges(data=True):
         # N1(x) < N2(x) reverse the edge labels
         if pos[n1][0] < pos[n2][0]:
